@@ -55,3 +55,7 @@ app.all('*', (req, res, next) => {
 app.use(errorHandler);
 
 module.exports = app;
+const path = require('path');
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../public')));
