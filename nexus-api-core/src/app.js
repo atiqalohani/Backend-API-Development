@@ -25,6 +25,20 @@ app.use(morgan('dev'));
 // Rate Limiting
 app.use('/api/', apiLimiter);
 
+// In src/app.js
+
+const express = require('express');
+const path = require('path');
+const app = express();
+
+app.use(express.json());
+
+// Add this line to serve your frontend code from the public folder
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Your API Routes
+app.use('/api/v1', userRoutes);
+
 // API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
