@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -15,8 +16,10 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 
 // Security Middlewares
-app.use(helmet());
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(helmet({
+  contentSecurityPolicy: false // Allows inline scripts in index.html to run
+}));
+app.use(cors());
 app.use(express.json());
 
 // Logging Middleware
@@ -25,24 +28,18 @@ app.use(morgan('dev'));
 // Rate Limiting
 app.use('/api/', apiLimiter);
 
-// In src/app.js
+// Serve frontend static files from the root index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'index.html'));
+});
 
-const express = require('express');
-const path = require('path');
-const app = express();
-
-app.use(express.json());
-
-// Add this line to serve your frontend code from the public folder
-app.use(express.static(path.join(__dirname, '../public')));
-
-// Your API Routes
-app.use('/api/v1', userRoutes);
+// Serve any additional static assets from the root directory
+app.use(express.static(process.cwd()));
 
 // API Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Routes
+// API Routes
 app.use('/api/v1', healthRoutes);
 app.use('/api/v1', userRoutes);
 
@@ -55,7 +52,3 @@ app.all('*', (req, res, next) => {
 app.use(errorHandler);
 
 module.exports = app;
-const path = require('path');
-
-// Serve static frontend files
-app.use(express.static(path.join(__dirname, '../public')));
